@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>波形デジタルビューワー</title>
+  <title>音声波形表示アプリ</title>
   <style>
     :root {
       --primary: #4CD964;
@@ -43,29 +43,14 @@
       font-size: 1rem;
       cursor: pointer;
     }
-    select {
-      background: var(--card);
-      color: var(--fg);
-    }
-    button {
-      background: var(--primary);
-      color: #fff;
-      transition: background 0.3s;
-    }
-    button:hover:not(:disabled) {
-      background: var(--accent);
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+    select { background: var(--card); color: var(--fg); }
+    button { background: var(--primary); color: #fff; transition: background 0.3s; }
+    button:hover:not(:disabled) { background: var(--accent); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
     #actionButton { background: var(--warn); }
     #pauseButton { background: #FFC107; color: var(--fg); }
     .slider-label { font-size: 1.2rem; }
-    input[type=range] {
-      width: 250px;
-      accent-color: var(--accent);
-    }
+    input[type=range] { width: 250px; accent-color: var(--accent); }
     canvas#waveform {
       width: 100%; max-width: 800px; height: 300px;
       background: var(--card);
@@ -94,7 +79,7 @@
   </style>
 </head>
 <body>
-  <h1>波形デジタルビューワー</h1>
+  <h1>音声波形表示アプリ</h1>
 
   <div class="controls">
     <label>モード:
@@ -242,17 +227,14 @@
         const data = buffer.slice(-len);
         const w = canvas.width, h = canvas.height;
         const baseY = h / 2;
-        // horizontal stretch 3x: show each sample over 3 pixels
         const step = len / (w * 3);
 
         if (showDigital) {
           const seg = Math.min(Math.floor(sampleRate * DIGITAL_MS / 1000), len);
-          const segW = (seg / len) * w;
-          ctx.fillStyle = 'rgba(255,0,0,0.2)'; ctx.fillRect(w - segW, 0, segW, h);
           const maxVal = Math.pow(2, QUANT_BITS);
           const lines = [`サンプリング周波数：${sampleRate}Hz，量子化ビット数：${QUANT_BITS}bit`];
           for (let i = 0; i < seg; i++) {
-            const v = data[len - seg + i] || 0;
+            const v = data[i] || 0;
             const q = Math.floor((v + 1) / 2 * (maxVal - 1));
             const bin = q.toString(2).padStart(QUANT_BITS, '0');
             lines.push(`${bin} (${q})`);
@@ -263,7 +245,8 @@
         ctx.beginPath(); ctx.strokeStyle = 'var(--accent)'; ctx.lineWidth = 2;
         ctx.moveTo(0, baseY);
         for (let x = 0; x < w; x++) {
-          const v = data[Math.floor(x * step)] || 0;
+          const idx = Math.floor(x * step);
+          const v = data[idx] || 0;
           ctx.lineTo(x, baseY - v * baseY);
         }
         ctx.stroke();
