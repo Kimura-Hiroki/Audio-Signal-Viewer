@@ -55,6 +55,10 @@
   <footer>©2025 キムりん＠松本深志高校</footer>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // iOS touch/scroll/pinch でも再描画を継続
+      ['scroll','touchmove','touchend','gesturechange','resize','orientationchange'].forEach(evt =>
+        window.addEventListener(evt, () => { if(recording && !paused) draw(); }, { passive: true })
+      );
       const modeSelect = document.getElementById('modeSelect');
       const actionBtn  = document.getElementById('actionButton');
       const pauseBtn   = document.getElementById('pauseButton');
